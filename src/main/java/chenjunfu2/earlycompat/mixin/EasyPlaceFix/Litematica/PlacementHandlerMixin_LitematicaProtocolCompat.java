@@ -28,7 +28,7 @@ public abstract class PlacementHandlerMixin_LitematicaProtocolCompat
 		at = @At
 		(
 			value = "INVOKE",
-			target = "Lfi/dy/masa/malilib/util/BlockUtils;getFirstDirectionProperty(Lnet/minecraft/block/BlockState;)Lnet/minecraft/state/property/DirectionProperty;",
+			target = "Lfi/dy/masa/malilib/util/BlockUtils;getFirstDirectionProperty(Lnet/minecraft/block/BlockState;)Ljava/util/Optional;",
 			ordinal = 0
 		)
 	)
@@ -72,7 +72,7 @@ public abstract class PlacementHandlerMixin_LitematicaProtocolCompat
 		at = @At
 		(
 			value = "INVOKE_ASSIGN",
-			target = "Lfi/dy/masa/malilib/util/BlockUtils;getFirstDirectionProperty(Lnet/minecraft/block/BlockState;)Lnet/minecraft/state/property/DirectionProperty;",
+			target = "Lfi/dy/masa/malilib/util/BlockUtils;getFirstDirectionProperty(Lnet/minecraft/block/BlockState;)Ljava/util/Optional;",
 			ordinal = 0
 		),
 		name = "protocolValue"
