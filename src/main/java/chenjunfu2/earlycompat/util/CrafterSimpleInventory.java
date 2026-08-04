@@ -51,7 +51,7 @@ public class CrafterSimpleInventory implements Inventory
         };
 		
 		
-		int[] is = nbt.getIntArray("disabled_slots");
+		int[] is = nbt.getIntArray("disabled_slots").orElse(new int[0]);
         for(int i = 0; i < 9; ++i)
 		{
             this.propertyDelegate.set(i, 0);
@@ -65,7 +65,7 @@ public class CrafterSimpleInventory implements Inventory
             }
         }
 
-        this.propertyDelegate.set(9, nbt.getInt("triggered"));
+        this.propertyDelegate.set(9, nbt.getInt("triggered").orElse(0));
 	}
 	
 	private boolean canToggleSlot(int slot)

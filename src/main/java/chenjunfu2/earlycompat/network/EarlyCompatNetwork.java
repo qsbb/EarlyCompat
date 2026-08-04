@@ -5,8 +5,8 @@ import me.fallenbreath.fanetlib.api.event.FanetlibServerEvents;
 import me.fallenbreath.fanetlib.api.packet.PacketCodec;
 import me.fallenbreath.fanetlib.api.packet.PacketId;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
-import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
+import net.minecraft.network.packet.Packet;
+
 import me.fallenbreath.fanetlib.api.packet.FanetlibPackets;
 
 import java.util.function.Consumer;
@@ -26,19 +26,21 @@ public class EarlyCompatNetwork
 	}
 
 	// 创建 C2S 包
-	public static CustomPayloadC2SPacket createC2S(int packetId, Consumer<NbtCompound> builder)
+	@SuppressWarnings("unchecked")
+	public static Packet<?> createC2S(int packetId, Consumer<NbtCompound> builder)
 	{
 	    NbtCompound nbt = new NbtCompound();
 	    builder.accept(nbt);
-	    return FanetlibPackets.createC2S(PACKET_TYPE, new EarlyCompatPacket(packetId, nbt));
+	    return (Packet<?>) FanetlibPackets.createC2S(PACKET_TYPE, new EarlyCompatPacket(packetId, nbt));
 	}
 
 	// 创建 S2C 包
-	public static CustomPayloadS2CPacket createS2C(int packetId, Consumer<NbtCompound> builder)
+	@SuppressWarnings("unchecked")
+	public static Packet<?> createS2C(int packetId, Consumer<NbtCompound> builder)
 	{
 	    NbtCompound nbt = new NbtCompound();
 	    builder.accept(nbt);
-	    return FanetlibPackets.createS2C(PACKET_TYPE, new EarlyCompatPacket(packetId, nbt));
+	    return (Packet<?>) FanetlibPackets.createS2C(PACKET_TYPE, new EarlyCompatPacket(packetId, nbt));
 	}
 	
 	public static void registerPackets()

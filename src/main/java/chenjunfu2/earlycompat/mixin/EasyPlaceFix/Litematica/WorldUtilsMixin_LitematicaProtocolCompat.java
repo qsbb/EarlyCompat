@@ -16,7 +16,7 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.VerticallyAttachableBlockItem;
-import net.minecraft.state.property.DirectionProperty;
+import net.minecraft.state.property.Property;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
@@ -64,16 +64,16 @@ public abstract class WorldUtilsMixin_LitematicaProtocolCompat
 			isWallBlock = true;
 			
 			if(block.equals(((VerticallyAttachableBlockItemAccessor)verticallyAttachableBlockItem).esrlycompat$getWallBlock()))//上墙才使用默认协议，否则低位预留为0
+		{
+			Property<Direction> dir = BlockPlacer.getFirstDirectionProperty(state);
+			if(dir != null)
 			{
-				DirectionProperty dir = BlockPlacer.getFirstDirectionProperty(state);
-				if(dir != null)
-				{
-					int facingIndex = state.get(dir).ordinal() - 2;//2 based index
-					wallProtocolValue = ((facingIndex & 0b0000_0011) << 1);
-				}
-				
-				wallProtocolValue |= 0b0000_0001;
+				int facingIndex = state.get(dir).ordinal() - 2;//2 based index
+				wallProtocolValue = ((facingIndex & 0b0000_0011) << 1);
 			}
+			
+			wallProtocolValue |= 0b0000_0001;
+		}
 		}
 		
 		if(!(block instanceof BlockProtocolStateAdapter blockProtocolStateAdapter))
@@ -179,7 +179,10 @@ public abstract class WorldUtilsMixin_LitematicaProtocolCompat
 		
 		//获取物品nbt
 		ItemStack itemStack = block.asItem().getDefaultStack();
-		blockEntity.setStackNbt(itemStack);
+		if(itemStack != null && !itemStack.isEmpty())
+		{
+			blockEntity.markDirty();
+		}
 		
 		//协议映射
 		int protocolAdditionValue = itemStackProtocolDataAdapter.earlycompat$toProtocolValueAddition(itemStack);

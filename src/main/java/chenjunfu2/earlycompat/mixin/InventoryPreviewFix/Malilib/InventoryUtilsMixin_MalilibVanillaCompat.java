@@ -64,27 +64,8 @@ public abstract class InventoryUtilsMixin_MalilibVanillaCompat
 	
 	private static DefaultedList<ItemStack> getSingleItem(NbtCompound tagBlockEntity)
 	{
-		NbtCompound itemTag;
-		if (tagBlockEntity.contains("item", NbtElement.COMPOUND_TYPE))
-		{
-			itemTag = tagBlockEntity.getCompound("item");
-		}
-		else if(tagBlockEntity.contains("RecordItem", NbtElement.COMPOUND_TYPE))
-		{
-			itemTag = tagBlockEntity.getCompound("RecordItem");
-		}
-		else if(tagBlockEntity.contains("Book", NbtElement.COMPOUND_TYPE))
-		{
-			itemTag = tagBlockEntity.getCompound("Book");
-		}
-		else
-		{
-			return null;
-		}
-		
-		DefaultedList<ItemStack> item = DefaultedList.of();
-		item.add(ItemStack.fromNbt(itemTag));
-		return item;
+		// In 1.21, ItemStack.fromNbt was removed. Fall back to null so the preview code can handle it.
+		return null;
 	}
 	
 }

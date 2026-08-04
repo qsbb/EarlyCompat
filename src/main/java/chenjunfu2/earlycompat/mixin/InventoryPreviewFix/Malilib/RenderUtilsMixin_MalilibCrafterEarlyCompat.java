@@ -8,6 +8,9 @@ import fi.dy.masa.malilib.render.RenderUtils;
 import net.chenjunfu2.block.CrafterBlock;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.entity.TypedEntityData;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
@@ -15,6 +18,8 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.util.collection.DefaultedList;
 import org.spongepowered.asm.mixin.Mixin;
+
+import java.util.Optional;
 import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(RenderUtils.class)
@@ -42,7 +47,13 @@ public abstract class RenderUtilsMixin_MalilibCrafterEarlyCompat
 			return original.call(items);
 		}
 		
-		NbtCompound tagBlockEntity = stack.getSubNbt("BlockEntityTag");
+		NbtCompound tagBlockEntity = null;
+		@SuppressWarnings("unchecked")
+		TypedEntityData<BlockEntityType<?>> bed = (TypedEntityData<BlockEntityType<?>>) (Object) stack.get(DataComponentTypes.BLOCK_ENTITY_DATA);
+		if (bed != null)
+		{
+			tagBlockEntity = bed.copyNbtWithoutId();
+		}
 		if (tagBlockEntity == null)
 		{
 			return original.call(items);

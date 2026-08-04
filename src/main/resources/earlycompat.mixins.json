@@ -20,7 +20,7 @@
     "EasyPlaceFix.Vanilla.DetectorRailBlockMixin_VanillaProtocolCompat",
     "EasyPlaceFix.Vanilla.DoorBlockMixin_VanillaProtocolCompat",
     "EasyPlaceFix.Vanilla.FenceGateBlockMixin_VanillaProtocolCompat",
-    "EasyPlaceFix.Vanilla.FlowerbedBlockMixin_VanillaProtocolCompat",
+
     "EasyPlaceFix.Vanilla.HangingSignBlockMixin_VanillaProtocolCompat",
     "EasyPlaceFix.Vanilla.JigsawBlockMixin_VanillaProtocolCompat",
     "EasyPlaceFix.Vanilla.LanternBlockMixin_VanillaProtocolCompat",
@@ -52,8 +52,7 @@
     "PcaProtocolFix.Pca.CrafterBlockEntityMixin_PcaCrafterEarlyCompat",
     "PcaProtocolFix.Pca.DecoratedPotBlockEntityMixin_PcaDecoratedPotEarlyCompat",
     "PcaProtocolFix.Pca.JukeboxBlockEntityMixin_PcaVanillaCompat",
-    "PcaProtocolFix.Vanilla.ChiseledBookshelfBlockEntityMixin_VanillaBugFix",
-    "PcaProtocolFix.Vanilla.JukeboxBlockEntityMixin_VanillaBugFix"
+    "PcaProtocolFix.Vanilla.ChiseledBookshelfBlockEntityMixin_VanillaBugFix"
   ],
   "client": [
     "EasyPlaceFix.Litematica.ConfigGuiTabMixin_LitematicaProtocolCompat",

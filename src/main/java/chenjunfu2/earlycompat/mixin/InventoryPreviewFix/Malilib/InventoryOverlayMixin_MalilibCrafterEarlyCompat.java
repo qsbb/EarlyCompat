@@ -10,7 +10,9 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.block.Block;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
+
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
@@ -70,7 +72,7 @@ public abstract class InventoryOverlayMixin_MalilibCrafterEarlyCompat
 	}
 	
 	@Unique
-	private static final Identifier earlycompat$CRAFTER_DISABLED_SLOT_TEXTURE = new Identifier("textures/gui/container/crafter/disabled_slot.png");
+	private static final Identifier earlycompat$CRAFTER_DISABLED_SLOT_TEXTURE = Identifier.of("textures/gui/container/crafter/disabled_slot.png");
 	
 	@Inject
 	(
@@ -94,7 +96,7 @@ public abstract class InventoryOverlayMixin_MalilibCrafterEarlyCompat
 				int sy = startY - 1 + row * 18;
 				if (crafter.isSlotDisabled(i))
 				{
-					drawContext.drawTexture(earlycompat$CRAFTER_DISABLED_SLOT_TEXTURE, sx, sy, 0, 0, 18, 18);
+					drawContext.drawTexture(RenderPipelines.GUI_TEXT, earlycompat$CRAFTER_DISABLED_SLOT_TEXTURE, sx, sy, 0, 0, 18, 18, 18, 18);
 				}
 			}
 		}
@@ -108,7 +110,7 @@ public abstract class InventoryOverlayMixin_MalilibCrafterEarlyCompat
 				int sy = startY - 1 + row * 18;
 				if (crafterInv.isSlotDisabled(i))
 				{
-					drawContext.drawTexture(earlycompat$CRAFTER_DISABLED_SLOT_TEXTURE, sx, sy, 0, 0, 18, 18);
+					drawContext.drawTexture(RenderPipelines.GUI_TEXT, earlycompat$CRAFTER_DISABLED_SLOT_TEXTURE, sx, sy, 0, 0, 18, 18, 18, 18);
 				}
 			}
 		}

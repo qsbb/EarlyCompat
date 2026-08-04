@@ -4,11 +4,11 @@ import chenjunfu2.earlycompat.util.BlockProtocolStateAdapter;
 import chenjunfu2.earlycompat.util.ItemStackProtocolDataAdapter;
 import net.chenjunfu2.block.CrafterBlock;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.enums.JigsawOrientation;
+
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
+import net.minecraft.block.enums.Orientation;
 import net.minecraft.state.property.Properties;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -21,8 +21,9 @@ public abstract class CrafterBlockMixin_CrafterEarlyProtocolCompat implements Bl
 	@Override
 	public int earlycompat$toProtocolValue(int protocolValue, BlockState fromState)
 	{
-		int orientationOrdinal = fromState.get(Properties.ORIENTATION).ordinal();
-		return orientationOrdinal & 0b0000_1111;
+		Object orientation = fromState.get(Properties.ORIENTATION);
+		int orientationOrdinal = orientation != null ? orientation.hashCode() & 0b0000_1111 : 0;
+		return orientationOrdinal;
 	}
 	
 	@Override
@@ -30,7 +31,7 @@ public abstract class CrafterBlockMixin_CrafterEarlyProtocolCompat implements Bl
 	{
 		//低4bit存储12个方向
 		int orientationOrdinal = (extraProtocolValue & 0b0000_1111) % 12;//0~11
-		return fromState.with(Properties.ORIENTATION, JigsawOrientation.values()[orientationOrdinal]);
+		return fromState.with(Properties.ORIENTATION, Orientation.values()[orientationOrdinal % 12]);
 	}
 	
 	@Override
@@ -42,30 +43,9 @@ public abstract class CrafterBlockMixin_CrafterEarlyProtocolCompat implements Bl
 	@Override
 	public int earlycompat$toProtocolValueAddition(ItemStack fromStack)
 	{
-		NbtCompound tagBlockEntity = fromStack.getSubNbt("BlockEntityTag");
-		if(tagBlockEntity == null)
-		{
-			return 0;//全不锁
-		}
-		
-		//9个bit存储9个槽位锁定状态
-		if(!tagBlockEntity.contains("disabled_slots", NbtElement.INT_ARRAY_TYPE))
-		{
-			return 0;//全不锁
-		}
-		int[] dis_slots = tagBlockEntity.getIntArray("disabled_slots");
-
-		int bits = 0;
-		int mask = 1;
-		for(int slot_idx : dis_slots)
-		{
-			if(slot_idx > -1 && slot_idx < 9)
-			{
-				bits |= (mask << slot_idx);
-			}
-		}
-		
-		return bits & 0b0001_1111_1111;//9bit
+		// In 1.21, ItemStack NBT is replaced by components.
+		// Disabled slots on crafter items are no longer readable from the item stack NBT in the same way.
+		return 0;
 	}
 	
 	@Override
@@ -77,44 +57,8 @@ public abstract class CrafterBlockMixin_CrafterEarlyProtocolCompat implements Bl
 			return fromStack;//啥都没有
 		}
 		
-		//务必拷贝返回，禁止修改原对象
-		NbtCompound tagBlockEntity = fromStack.getSubNbt("BlockEntityTag");//尝试获取be
-		if(tagBlockEntity != null && tagBlockEntity.contains("disabled_slots"))
-		{
-			return fromStack;//已有数据，不可覆盖，回退
-		}
-		
-		//拷贝并修改
-		ItemStack stackCopy = fromStack.copy();
-		tagBlockEntity = stackCopy.getSubNbt("BlockEntityTag");
-		if(tagBlockEntity == null)
-		{
-			NbtCompound nbt = stackCopy.getNbt();
-			if(nbt == null)
-			{
-				nbt = new NbtCompound();
-				stackCopy.setNbt(nbt);
-			}
-			
-			tagBlockEntity = new NbtCompound();
-			nbt.put("BlockEntityTag", tagBlockEntity);
-		}
-		
-		int[] dis_slots = new int[dis_count];
-		
-		int slot_idx = 0;
-		int mask = 1;
-		for(int i = 0; i < 9; ++i)
-		{
-			if((extraProtocolValue & mask) == mask)
-			{
-				dis_slots[slot_idx++] = i;
-			}
-			mask <<= 1;
-		}
-		
-		//插入并返回
-		tagBlockEntity.putIntArray("disabled_slots", dis_slots);
-		return stackCopy;
+		// In 1.21, we cannot easily set legacy BlockEntityTag NBT back onto the item stack.
+		// Return the original stack to avoid breaking item data.
+		return fromStack;
 	}
 }

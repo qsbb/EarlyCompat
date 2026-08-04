@@ -3,7 +3,6 @@ package chenjunfu2.earlycompat.util;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.state.property.DirectionProperty;
 import net.minecraft.state.property.Property;
 import net.minecraft.util.math.Direction;
 import org.jetbrains.annotations.Nullable;
@@ -37,13 +36,13 @@ public class BlockPlacer
 			}
 			
 			//默认协议
-			DirectionProperty directionProperty = getFirstDirectionProperty(blockState2);
-			if(directionProperty != null)
-			{
-				int facingIndex = (protocolValue & 0b0000_0011) + 2;//6方向，facing从2开始
-				Direction facing = Direction.values()[facingIndex];
-				blockState2 = blockState2.with(directionProperty, facing);
-			}
+		Property<Direction> directionProperty = getFirstDirectionProperty(blockState2);
+		if(directionProperty != null)
+		{
+			int facingIndex = (protocolValue & 0b0000_0011) + 2;//6方向，facing从2开始
+			Direction facing = Direction.values()[facingIndex];
+			blockState2 = blockState2.with(directionProperty, facing);
+		}
 			protocolValue >>>= 2;//使用完毕，丢弃
 			
 			if(wallBlock instanceof BlockProtocolStateAdapter wallBlockProtocolStateAdapter)
@@ -75,13 +74,15 @@ public class BlockPlacer
 		return blockState;
 	}
 	
-	public static @Nullable DirectionProperty getFirstDirectionProperty(BlockState state)
+	public static @Nullable Property<Direction> getFirstDirectionProperty(BlockState state)
 	{
 		for(Property<?> prop : state.getProperties())
 		{
-			if (prop instanceof DirectionProperty)
+			if (prop instanceof Property)
 			{
-				return (DirectionProperty)prop;
+				@SuppressWarnings("unchecked")
+				Property<Direction> directionProperty = (Property<Direction>) prop;
+				return directionProperty;
 			}
 		}
 		

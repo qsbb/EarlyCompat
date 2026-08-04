@@ -5,8 +5,9 @@ import chenjunfu2.earlycompat.util.BlockProtocolStateAdapter;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.LeverBlock;
 import net.minecraft.block.WallMountedBlock;
-import net.minecraft.block.enums.WallMountLocation;
+import net.minecraft.block.enums.BlockFace;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.world.block.WireOrientation;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
@@ -30,7 +31,8 @@ public abstract class LeverBlockMixin_VanillaProtocolCompat extends WallMountedB
 	@Override
 	public int earlycompat$toProtocolValue(int protocolValue, BlockState fromState)
 	{
-		int faceOridinal = fromState.get(LeverBlock.FACE).ordinal();
+		BlockFace face = fromState.get(LeverBlock.FACE);
+		int faceOridinal = face != null ? face.ordinal() : 0;
 		boolean isPowered = fromState.get(LeverBlock.POWERED);
 		int bits =
 			((faceOridinal & 0b0000_0011) << 4) |
@@ -44,7 +46,7 @@ public abstract class LeverBlockMixin_VanillaProtocolCompat extends WallMountedB
 		int faceOridinal = ((extraProtocolValue & 0b0011_0000) >>> 4) % 3;//0~2
 		boolean isPowered = (extraProtocolValue & 0b0100_0000) == 0b0100_0000;
 		return fromState
-			.with(LeverBlock.FACE, WallMountLocation.values()[faceOridinal])
+			.with(LeverBlock.FACE, BlockFace.values()[faceOridinal])
 			.with(LeverBlock.POWERED, isPowered);
 	}
 	
@@ -81,10 +83,9 @@ public abstract class LeverBlockMixin_VanillaProtocolCompat extends WallMountedB
 			return;//当前不是轻松放置，跳过
 		}
 		
-        if (!world.isClient && state.get(LeverBlock.POWERED))//更新一下附着方块的临近
+        if (!world.isClient() && state.get(LeverBlock.POWERED))//更新一下附着方块的临近
 		{
-			//world.updateNeighborsAlways(pos, (LeverBlock)(Object)this);
-            world.updateNeighborsAlways(pos.offset(getDirection(state).getOpposite()), (LeverBlock)(Object)this);
+			world.updateNeighborsAlways(pos.offset(getDirection(state).getOpposite()), (LeverBlock)(Object)this, WireOrientation.fromOrdinal(0));
         }
     }
 }
