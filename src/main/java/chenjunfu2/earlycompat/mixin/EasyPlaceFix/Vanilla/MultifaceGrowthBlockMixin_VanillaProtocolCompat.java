@@ -10,9 +10,7 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 
 import java.util.ArrayList;
@@ -22,10 +20,6 @@ import java.util.List;
 @Mixin(MultifaceGrowthBlock.class)
 public abstract class MultifaceGrowthBlockMixin_VanillaProtocolCompat implements MultiStageBlockProtocolStateAdapter, BlockProtocolStateAdapter
 {
-	@Shadow
-	@Final
-	protected static Direction[] DIRECTIONS;
-	
 	@Unique
 	private boolean earlycompat$hasDirection(BlockState state, Direction direction)
 	{
@@ -44,9 +38,10 @@ public abstract class MultifaceGrowthBlockMixin_VanillaProtocolCompat implements
 		List<Integer> requireDirection = new ArrayList<>();
 		ctx.data = requireDirection;
 		
-		for(int i = 0; i < DIRECTIONS.length; ++i)
+		Direction[] directions = Direction.values();
+		for(int i = 0; i < directions.length; ++i)
 		{
-			var direction = DIRECTIONS[i];
+			var direction = directions[i];
 			if (earlycompat$hasDirection(ctx.stateSchematic, direction) &&
 				!earlycompat$hasDirection(ctx.stateClient, direction))//投影有但是世界缺失，那么计数
 			{
@@ -74,8 +69,9 @@ public abstract class MultifaceGrowthBlockMixin_VanillaProtocolCompat implements
 	@Override
 	public @Nullable BlockState earlycompat$fromProtocolValue(int extraProtocolValue, BlockState fromState, ItemPlacementContext context)
 	{
+		Direction[] directions = Direction.values();
 		int index = extraProtocolValue & 0b0111;
-		if(index >= DIRECTIONS.length)
+		if(index >= directions.length)
 		{
 			return null;
 		}
@@ -84,7 +80,7 @@ public abstract class MultifaceGrowthBlockMixin_VanillaProtocolCompat implements
         BlockPos blockPos = context.getBlockPos();
         BlockState blockWorldState = world.getBlockState(blockPos);
 
-		return ((MultifaceGrowthBlock)fromState.getBlock()).withDirection(blockWorldState, world, blockPos, DIRECTIONS[index]);
+		return ((MultifaceGrowthBlock)fromState.getBlock()).withDirection(blockWorldState, world, blockPos, directions[index]);
 	}
 	
 	
