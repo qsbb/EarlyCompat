@@ -61,13 +61,7 @@
     "EasyPlaceFix.Litematica.GuiConfigsMixin_LitematicaProtocolCompat",
     "EasyPlaceFix.Litematica.GuiRenderLayerMixin_LitematicaProtocolCompat",
     "EasyPlaceFix.Litematica.PlacementHandlerMixin_LitematicaProtocolCompat",
-    "EasyPlaceFix.Litematica.WorldUtilsMixin_LitematicaProtocolCompat",
-    "InventoryPreviewFix.Malilib.InventoryOverlayMixin_MalilibCrafterEarlyCompat",
-    "InventoryPreviewFix.Malilib.InventoryOverlayMixin_MalilibVanillaCompat",
-    "InventoryPreviewFix.Malilib.InventoryRenderTypeMixin_MalilibVanillaCompat",
-    "InventoryPreviewFix.Malilib.InventoryUtilsMixin_MalilibVanillaCompat",
-    "InventoryPreviewFix.Malilib.RenderUtilsMixin_MalilibCrafterEarlyCompat",
-    "InventoryPreviewFix.Malilib.RenderUtilsMixin_MalilibVanillaCompat"
+    "EasyPlaceFix.Litematica.WorldUtilsMixin_LitematicaProtocolCompat"
   ],
   "injectors": {
     "defaultRequire": 1
