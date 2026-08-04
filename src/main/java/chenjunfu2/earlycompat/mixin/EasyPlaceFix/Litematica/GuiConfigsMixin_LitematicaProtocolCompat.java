@@ -34,7 +34,7 @@ public abstract class GuiConfigsMixin_LitematicaProtocolCompat extends GuiConfig
 	@WrapOperation
 	(
 		method = "Lfi/dy/masa/litematica/gui/GuiConfigs;initGui()V",
-		at = @At(value = "INVOKE", target = "Lfi/dy/masa/litematica/gui/GuiConfigs;createButton(IIILfi/dy/masa/litematica/gui/GuiConfigs$ConfigGuiTab;)I", ordinal = 5),
+		at = @At(value = "INVOKE", target = "Lfi/dy/masa/litematica/gui/GuiConfigs;createButton(IIILfi/dy/masa/litematica/gui/GuiConfigs$ConfigGuiTab;)I", ordinal = 0),
 		remap = false
 	)
 	public int initMyGui(GuiConfigs instance, int x, int y, int width, GuiConfigs.ConfigGuiTab tab, Operation<Integer> original, @Local(name = "x") int guiX, @Local(name = "y") int guiY)
