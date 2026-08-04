@@ -2,7 +2,6 @@ package chenjunfu2.earlycompat.mixin.EasyPlaceFix.Litematica;
 
 import chenjunfu2.earlycompat.network.EarlyCompatS2ClientHandler;
 import chenjunfu2.earlycompat.util.BlockProtocolStateAdapter;
-import com.llamalad7.mixinextras.sugar.Local;
 import fi.dy.masa.litematica.util.PlacementHandler;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -11,7 +10,6 @@ import net.minecraft.block.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import static chenjunfu2.earlycompat.config.LitematicaEarlyCompatConfigs.EASY_PLACE_V2_PROTOCOL_EXTRA;
@@ -25,12 +23,7 @@ public abstract class PlacementHandlerMixin_LitematicaProtocolCompat
 	(
 		method = "Lfi/dy/masa/litematica/util/PlacementHandler;applyPlacementProtocolV2(Lnet/minecraft/block/BlockState;Lfi/dy/masa/litematica/util/PlacementHandler$UseContext;)Lnet/minecraft/block/BlockState;",
 		cancellable = true,
-		at = @At
-		(
-			value = "INVOKE",
-			target = "Lfi/dy/masa/malilib/util/BlockUtils;getFirstDirectionProperty(Lnet/minecraft/block/BlockState;)Ljava/util/Optional;",
-			ordinal = 0
-		)
+		at = @At("HEAD")
 	)
 	private static void replaceExtraProtocol(BlockState state, PlacementHandler.UseContext context, CallbackInfoReturnable<BlockState> cir)
 	{
@@ -55,88 +48,17 @@ public abstract class PlacementHandlerMixin_LitematicaProtocolCompat
 			return;//不是已知方块，跳过处理，有可能是其它mixin的协议
 		}
 		
-		if(blockProtocolStateAdapter.earlycompat$getProtocolType() != BlockProtocolStateAdapter.ProtocolType.REPLACE)
+		if(blockProtocolStateAdapter.earlycompat$getProtocolType() == BlockProtocolStateAdapter.ProtocolType.REPLACE)
 		{
-			return;//如果不是替换模式，那么什么也不做
+			int rawProtocolValue = extraProtocolValueToRawProtocolValue(protocolValue);
+			cir.setReturnValue(blockProtocolStateAdapter.earlycompat$fromProtocolValue(rawProtocolValue, state, context.getItemPlacementContext()));
+			cir.cancel();
 		}
-		
-		int rawProtocolValue = extraProtocolValueToRawProtocolValue(protocolValue);
-		cir.setReturnValue(blockProtocolStateAdapter.earlycompat$fromProtocolValue(rawProtocolValue, state, context.getItemPlacementContext()));
-		cir.cancel();
+		else if(blockProtocolStateAdapter.earlycompat$getProtocolType() == BlockProtocolStateAdapter.ProtocolType.ADDED)
+		{
+			cir.setReturnValue(blockProtocolStateAdapter.earlycompat$fromProtocolValue(protocolValue, state, context.getItemPlacementContext()));//使用原值，不解包
+			cir.cancel();
+		}
 	}
 	
-	
-	@ModifyVariable
-	(
-		method = "Lfi/dy/masa/litematica/util/PlacementHandler;applyPlacementProtocolV2(Lnet/minecraft/block/BlockState;Lfi/dy/masa/litematica/util/PlacementHandler$UseContext;)Lnet/minecraft/block/BlockState;",
-		at = @At
-		(
-			value = "INVOKE_ASSIGN",
-			target = "Lfi/dy/masa/malilib/util/BlockUtils;getFirstDirectionProperty(Lnet/minecraft/block/BlockState;)Ljava/util/Optional;",
-			ordinal = 0
-		),
-		name = "protocolValue"
-	)
-	private static int replaceExtraProtocolValue
-	(
-		int protocolValue
-	)
-	{
-		if(!EarlyCompatS2ClientHandler.isServerSupportsExtraProtocol() || !EASY_PLACE_V2_PROTOCOL_EXTRA.getBooleanValue())//未开启扩展协议
-		{
-			return protocolValue;
-		}
-		
-		//注意投影这里的处理时，原始值没有丢弃最低位，要和carpet extra一样必须先右移才是协议值，清理extra扩展位后复原
-		return removeExtraProtocolBit(protocolValue >>> 1) << 1;//防止ADDED模式下自定义扩展bit对原始逻辑的影响，所有模式下协议值都从原始浮点内读出，此处修改不影响自定义协议处理效果
-	}
-	
-	@ModifyVariable
-	(
-		method = "Lfi/dy/masa/litematica/util/PlacementHandler;applyPlacementProtocolV2(Lnet/minecraft/block/BlockState;Lfi/dy/masa/litematica/util/PlacementHandler$UseContext;)Lnet/minecraft/block/BlockState;",
-		at = @At
-		(
-			value = "RETURN",
-			ordinal = 2,
-			shift = At.Shift.BY,
-			by = -1//前移一条指令，在ALOAD 0之前才能修改state
-		),
-		name = "state"
-	)
-	private static BlockState addExtraProtocol
-	(
-		BlockState state,
-		@Local(name = "context") PlacementHandler.UseContext context
-	)
-	{
-		if(!EarlyCompatS2ClientHandler.isServerSupportsExtraProtocol() || !EASY_PLACE_V2_PROTOCOL_EXTRA.getBooleanValue())//未开启扩展协议
-		{
-			return state;
-		}
-		
-		Block block = state.getBlock();
-		double relativeHitX = getRelativeHitX(context.getHitVec(), context.getPos());
-		
-		//最低bit0留给浮点误差兼容，protocolValue已进行摘除处理
-		int protocolValue = decodeProtocolValueFromHitDim(relativeHitX);
-		if(!isExtraProtocol(protocolValue))
-		{
-			return state;//不是扩展协议
-		}
-		
-		//只处理扩展协议内已知的方块
-		if(!(block instanceof BlockProtocolStateAdapter blockProtocolStateAdapter))
-		{
-			return state;//不是已知方块，跳过处理，有可能是其它mixin的协议
-		}
-		
-		if(blockProtocolStateAdapter.earlycompat$getProtocolType() != BlockProtocolStateAdapter.ProtocolType.ADDED)
-		{
-			return state;//如果不是添加模式，那么什么也不做
-		}
-		
-		BlockState newState = blockProtocolStateAdapter.earlycompat$fromProtocolValue(protocolValue, state, context.getItemPlacementContext());//使用原值，不解包
-		return newState;
-	}
-
 }
