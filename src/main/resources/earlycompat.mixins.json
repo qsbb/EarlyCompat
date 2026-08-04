@@ -60,7 +60,7 @@
     "EasyPlaceFix.Litematica.EarlyCompatConfigsMixin_LitematicaProtocolCompat",
     "EasyPlaceFix.Litematica.GuiConfigsMixin_LitematicaProtocolCompat",
     "EasyPlaceFix.Litematica.GuiRenderLayerMixin_LitematicaProtocolCompat",
-    "EasyPlaceFix.Litematica.PlacementHandlerMixin_LitematicaProtocolCompat",
+    //"EasyPlaceFix.Litematica.PlacementHandlerMixin_LitematicaProtocolCompat",
     "EasyPlaceFix.Litematica.WorldUtilsMixin_LitematicaProtocolCompat"
   ],
   "injectors": {
