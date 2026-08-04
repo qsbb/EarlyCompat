@@ -11,8 +11,10 @@ import fi.dy.masa.malilib.util.FileUtils;
 import fi.dy.masa.malilib.util.JsonUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.MinecraftClient;
 
 import java.io.File;
+import java.lang.reflect.Method;
 
 @Environment(EnvType.CLIENT)
 public class LitematicaEarlyCompatConfigs
@@ -28,9 +30,32 @@ public class LitematicaEarlyCompatConfigs
 		EASY_PLACE_RAIL_BLOCK_NO_SHAPE_UPDATE
 	);
 	
+	private static File getConfigDirectoryCompat()
+    {
+        try
+        {
+            Method method = FileUtils.class.getMethod("getConfigDirectory");
+            Object result = method.invoke(null);
+
+            if (result instanceof java.nio.file.Path path)
+            {
+                return path.toFile();
+            }
+            else if (result instanceof File file)
+            {
+                return file;
+            }
+        }
+        catch (Exception ignored)
+        {
+        }
+
+        return new File(MinecraftClient.getInstance().runDirectory, "config");
+    }
+	
 	public static void loadFromFile()
     {
-        File configFile = new File(FileUtils.getConfigDirectory(), CONFIG_FILE_NAME);
+        File configFile = new File(getConfigDirectoryCompat(), CONFIG_FILE_NAME);
 
         if (configFile.exists() && configFile.isFile() && configFile.canRead())
         {
@@ -46,7 +71,7 @@ public class LitematicaEarlyCompatConfigs
 
     public static void saveToFile()
     {
-        File dir = FileUtils.getConfigDirectory();
+        File dir = getConfigDirectoryCompat();
 
         if ((dir.exists() && dir.isDirectory()) || dir.mkdirs())
         {
