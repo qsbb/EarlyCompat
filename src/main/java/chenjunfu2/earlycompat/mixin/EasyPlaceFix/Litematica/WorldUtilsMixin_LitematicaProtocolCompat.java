@@ -214,7 +214,7 @@ public abstract class WorldUtilsMixin_LitematicaProtocolCompat
 		@Local(name = "stateSchematic") BlockState stateSchematic,
 		@Local(name = "stack") ItemStack stack,
 		@Local(name = "hitPos") Vec3d hitPos,
-		@Local(name = "side") Direction side
+		@Local(name = "sideOrig") Direction side
 	)
 	{
 		if(!EarlyCompatS2ClientHandler.isServerSupportsExtraProtocol() || !EASY_PLACE_V2_PROTOCOL_EXTRA.getBooleanValue())//未开启扩展协议
